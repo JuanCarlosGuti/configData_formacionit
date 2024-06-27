@@ -1,6 +1,15 @@
 server:
   port: ${PORT:${SERVER_PORT:8080}}
 
+
+
+server:
+  cloud:
+    gateway:
+      default-filters: #Filtro por defecto de todas las requests realizadas al gateway
+        - name: LogFilter
+
+
 spring:
   application:
     name: gateway
