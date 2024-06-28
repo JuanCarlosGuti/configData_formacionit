@@ -1,41 +1,43 @@
 server:
-  port: ${PORT:${SERVER_PORT:0}}
+  port: ${PORT:${SERVER_PORT:8080}}
+
+
+
 spring:
   application:
-    name: usuarios
-  datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/formacionIt
-    username: root
-    password: Wire2681
-  jpa:
-    hibernate:
-      ddl-auto: create
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-
+    name: gateway
+  cloud:    
+    gateway:  
+      default-filters: # Filtro por defecto de todas las requests realizadas al gateway
+        - name: LogFilter
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: products
+          uri: lb://productos
+          predicates:
+            - Path=/api/v1/productos/**
+        - id: reviews
+          uri: lb://review
+          predicates:
+            - Path=/review/**
 
 info:
-  application:
-     name: usuarios
-    
-eureka:
-  instance:
-    hostname: localhost
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-  client:
-    registerWithEureka: true
-    fetchRegistry: true
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+  app:
+    name: ${spring.application.name}
 
+eureka:
+   client:
+      registerWithEureka: false
+      fetchRegistry: true
+      serviceURL:
+         defaultZone: http://localhost:8761/eureka
 management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: always
+   endpoint:
+      gateway:
+         enabled: true
+   endpoints:
+      web:
+         exposure:
+            include: gateway
